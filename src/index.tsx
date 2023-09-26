@@ -3,7 +3,8 @@ import { Top } from './pages/top'
 import { Experience } from './pages/experience'
 import { Articles } from './pages/articles'
 import { Certificates } from './pages/certificates'
-//import { serveStatic } from 'hono/cloudflare-workers'
+import { Repositories } from './pages/repositories'
+import { serveStatic } from 'hono/cloudflare-workers'
 
 const app = new Hono()
 
@@ -23,6 +24,22 @@ export type iArticles = {
 export type iCertificates = {
   blockchainId: string;
   title: string;
+}
+
+export type iRepositories = {
+  name: string;
+  description: string;
+  url: string;
+}
+
+export type Viewer = {
+  data: {
+      viewer: {
+          repositories: {
+              nodes: iRepositories[];
+          }
+      }
+  }
 }
 
 // Logic
@@ -72,6 +89,46 @@ const getCertificates = () => {
   return certificates;
 }
 
+const getRepositories = async (): Promise<iRepositories[]> => {
+  // Repositories created by you
+  const queryData = {
+    query: `
+    query {
+        viewer {
+          repositories(first: 10, ownerAffiliations: OWNER) {
+            nodes {
+              name
+              description
+              url
+            }
+          }
+        }
+      }
+    `
+  };
+
+  // User-Agent can be anything.
+  const ghEndpoint = "https://api.github.com/graphql"
+  // todo
+  const ghToken = ""
+  const response = await fetch(ghEndpoint, {
+      body: JSON.stringify(queryData),
+      headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ghToken}`,
+          'User-Agent': 'MyCustomUserAgent' 
+      },
+      method: "POST",
+  });
+  if (!response.ok) {
+    console.log("GitHub API responded with status: " + response.status)
+    return []
+  }
+  const viewerData:Viewer  = await response.json();
+  const repositories: iRepositories[] = viewerData.data.viewer.repositories.nodes;
+  return repositories;
+}
+
 // Controller
 app.get('/', (c) => {
   return c.html(<Top />)
@@ -90,6 +147,11 @@ app.get('/articles/', async (c) => {
 app.get('/certificates/', (c) => {
   const certificates = getCertificates()
   return c.html(<Certificates title='Certificates' detail={certificates} />)
+})
+
+app.get('/repositories/', async (c) => {
+  const repositories = await getRepositories()
+  return c.html(<Repositories title='Repositories' detail={repositories}/>)
 })
 
 app.fire()

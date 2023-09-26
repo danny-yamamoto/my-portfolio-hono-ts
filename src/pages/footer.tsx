@@ -6,7 +6,7 @@ export const Footer = (props: { title: string }) => {
                 <a href="https://twitter.com/dai_s_a_n" target="_blank"><i class="fab fa-twitter fa-inverse"></i></a>
             </div>
             <hr></hr>
-            <p class="fa">&copy; 2023 {props.title}. All rights reserved.</p>
+            <p class="fa fa-xs">&copy; 2023 {props.title}. All rights reserved.</p>
         </footer>
     )
   }
