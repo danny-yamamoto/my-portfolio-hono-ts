@@ -1,13 +1,17 @@
 {
   "scripts": {
-    "dev": "wrangler pages dev --compatibility-date=2023-01-01 ./pages",
-    "deploy": "wrangler pages deploy ./pages"
+    "dev": "run-p dev:*",
+    "dev:wrangler": "wrangler dev src/index.tsx --live-reload",
+    "build": "run-p build:*",
+    "build:hono": "esbuild --bundle src/index.tsx --format=esm --outfile=dist/_worker.js",
+    "deploy": "wrangler pages publish dist"
   },
   "dependencies": {
     "hono": "^3.6.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230821.0",
+    "npm-run-all": "^4.1.5",
     "wrangler": "^3.7.0"
   }
 }
