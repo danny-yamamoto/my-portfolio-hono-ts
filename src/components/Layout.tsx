@@ -15,7 +15,7 @@ export const Layout = (props: { title: string; children?: any; }) => {
       <body style="padding: 1em 2em; background: linear-gradient(83.21deg,#3245ff 0%,#bc52ee 100%); color: white;">
         <header>
           <h1>
-            <a href="/" style="color: white;">Welcome to my portfolio</a>
+            <a href="/" class="fa-inverse">Welcome to my portfolio</a>
           </h1>
         </header>
         ${props.children}

@@ -9,7 +9,7 @@ export const Articles = (props: { title: string, detail: iArticles[] }) => {
             <ul>
                 {props.detail.map(({ title, url, id }) => (
                     <li id={id}>
-                        <a href={url} target="_blank">{title}</a>
+                        <a class="fa-inverse" href={url} target="_blank">{title}</a>
                     </li>
                 ))}
             </ul>
