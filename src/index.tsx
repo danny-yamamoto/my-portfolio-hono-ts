@@ -131,7 +131,7 @@ const getRepositories = async (): Promise<iRepositories[]> => {
 
 // Controller
 app.get('/', (c) => {
-  c.header('Content-Type', 'multipart/form-data')
+  c.header('Content-Type', 'text/html')
   return c.html(<Top />)
 })
 
