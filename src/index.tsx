@@ -131,6 +131,7 @@ const getRepositories = async (): Promise<iRepositories[]> => {
 
 // Controller
 app.get('/', (c) => {
+  c.text("Hello world, this is Hono!!")
   return c.html(<Top />)
 })
 
