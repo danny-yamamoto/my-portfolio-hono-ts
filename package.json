@@ -1,4 +1,5 @@
 {
+  "main": "dist/index.js",
   "scripts": {
     "dev": "run-p dev:*",
     "dev:wrangler": "wrangler dev src/index.tsx --live-reload",
