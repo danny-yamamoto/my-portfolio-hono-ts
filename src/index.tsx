@@ -6,7 +6,13 @@ import { Certificates } from './pages/certificates'
 import { Repositories } from './pages/repositories'
 import { serveStatic } from 'hono/cloudflare-workers'
 
+export type Env = {
+  GRAPHQL_API: string;
+  GH_TOKEN: string;
+};
+
 const app = new Hono()
+//const app = new Hono<{ Bindings: Env }>();
 
 // Model
 export type iExperience = {
@@ -89,7 +95,7 @@ const getCertificates = () => {
   return certificates;
 }
 
-const getRepositories = async (): Promise<iRepositories[]> => {
+const getRepositories = async (ghEndpoint: string, ghToken: string): Promise<iRepositories[]> => {
   // Repositories created by you
   const queryData = {
     query: `
@@ -108,9 +114,6 @@ const getRepositories = async (): Promise<iRepositories[]> => {
   };
 
   // User-Agent can be anything.
-  const ghEndpoint = "https://api.github.com/graphql"
-  // todo
-  const ghToken = ""
   const response = await fetch(ghEndpoint, {
       body: JSON.stringify(queryData),
       headers: { 
@@ -150,8 +153,13 @@ app.get('/certificates/', (c) => {
 })
 
 app.get('/repositories/', async (c) => {
-  const repositories = await getRepositories()
+  const grapqlApiEndpoint: string = c.env!.GRAPHQL_API as string;
+  const ghToken: string = c.env!.GH_TOKEN as string;
+  const repositories = await getRepositories(grapqlApiEndpoint, ghToken)
   return c.html(<Repositories title='Repositories' detail={repositories}/>)
 })
 
-app.fire()
+// TODO: 修正の理由を詳細に説明する
+//app.fire()
+// Module Workers Mode
+export default app;
