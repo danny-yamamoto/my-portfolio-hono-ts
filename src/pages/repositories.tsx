@@ -9,7 +9,7 @@ export const Repositories = (props: { title: string, detail: iRepositories[] }) 
             {props.detail && props.detail.map(({ name, description, url }) => (
                 <div id={name} style="grid-template-columns: repeat(1, 1fr); gap: 15px;">
                     <h3>{name}</h3>
-                    <p>{description}</p>
+                    <p  class="fa-xs">{description}</p>
                     <a href={url} target="_blank">View on GitHub</a>
                 </div>
             ))}
