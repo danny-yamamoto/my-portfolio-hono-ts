@@ -3,8 +3,8 @@
   "scripts": {
     "dev": "run-p dev:*",
     "dev:wrangler": "wrangler dev src/index.tsx --live-reload",
-    "dev:esbuild": "esbuild --bundle src/index.tsx --format=esm --watch --outfile=dist/_worker.js",
-    "build": "esbuild --bundle src/index.tsx --format=esm --outfile=dist/_worker.js",
+    "dev:esbuild": "esbuild --external:__STATIC_CONTENT_MANIFEST --bundle src/index.tsx --format=esm --watch --outfile=dist/_worker.js",
+    "build": "esbuild --external:__STATIC_CONTENT_MANIFEST --bundle src/index.tsx --format=esm --outfile=dist/_worker.js",
     "deploy": "wrangler pages publish dist"
   },
   "dependencies": {

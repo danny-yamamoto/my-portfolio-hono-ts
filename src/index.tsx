@@ -159,6 +159,9 @@ app.get('/repositories/', async (c) => {
   return c.html(<Repositories title='Repositories' detail={repositories}/>)
 })
 
+app.get('/static/*', serveStatic({ root: './' }))
+app.get('/favicon.ico', serveStatic({ path: './favicon.ico' }))
+
 // TODO: 修正の理由を詳細に説明する
 //app.fire()
 // Module Workers Mode
