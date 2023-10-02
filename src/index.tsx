@@ -4,7 +4,9 @@ import { Experience } from './pages/experience'
 import { Articles } from './pages/articles'
 import { Certificates } from './pages/certificates'
 import { Repositories } from './pages/repositories'
-import { serveStatic } from 'hono/cloudflare-workers'
+//import { serveStatic } from 'hono/cloudflare-workers'
+// @ts-ignore
+//import manifest from "__STATIC_CONTENT_MANIFEST";
 
 export type Env = {
   GRAPHQL_API: string;
@@ -159,8 +161,8 @@ app.get('/repositories/', async (c) => {
   return c.html(<Repositories title='Repositories' detail={repositories}/>)
 })
 
-app.get('/static/*', serveStatic({ root: './' }))
-app.get('/favicon.ico', serveStatic({ path: './favicon.ico' }))
+//app.get('/static/*', serveStatic({ root: './' }))
+//app.get('/favicon.ico', serveStatic({ path: './favicon.ico' }))
 
 // TODO: 修正の理由を詳細に説明する
 //app.fire()
