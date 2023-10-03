@@ -7,14 +7,15 @@ import { Repositories } from './pages/repositories'
 //import { serveStatic } from 'hono/cloudflare-workers'
 // @ts-ignore
 //import manifest from "__STATIC_CONTENT_MANIFEST";
+import { KVNamespace } from '@cloudflare/workers-types'
 
 export type Env = {
   GRAPHQL_API: string;
   GH_TOKEN: string;
+  CERTIFICATES: KVNamespace;
 };
 
-const app = new Hono()
-//const app = new Hono<{ Bindings: Env }>();
+const app = new Hono<{ Bindings: Env }>();
 
 // Model
 export type iExperience = {
@@ -149,9 +150,25 @@ app.get('/articles/', async (c) => {
   return c.html(<Articles title='Top 20 Articles' detail={articles} />)
 })
 
-app.get('/certificates/', (c) => {
-  const certificates = getCertificates()
-  return c.html(<Certificates title='Certificates' detail={certificates} />)
+type NameObject = {
+  name: string;
+};
+
+app.get('/certificates/', async (c) => {
+  //await c.env.CERTIFICATES.put("672721", "Google Cloud Certified - Professional Cloud Architect")
+  const certKeyList = await c.env.CERTIFICATES.list()
+  const namesArray: NameObject[] = certKeyList.keys;
+  const certArray: iCertificates[] = []
+  for (const name of namesArray) {
+    const kvKeyObject: NameObject = name
+    const kvKey = kvKeyObject.name
+    const certName = await c.env.CERTIFICATES.get(kvKey) as string
+    const iCert:iCertificates = {blockchainId: kvKey, title: certName}
+    certArray.push(iCert);
+  }
+//  const certificates = getCertificates()
+//  return c.html(<Certificates title='Certificates' detail={certificates} />)
+  return c.html(<Certificates title='Certificates' detail={certArray} />)
 })
 
 app.get('/repositories/', async (c) => {
