@@ -53,6 +53,14 @@ export type Viewer = {
 }
 
 // Logic
+const getExperience = async (env: Env) => {
+  const { results } = await env.DB.prepare(
+    "SELECT * FROM experience ORDER BY id DESC"
+  )
+  .all();
+  return results
+}
+
 const getArticles = async (count: number): Promise<iArticles[]> => {
   const response = await fetch(`https://qiita.com/api/v2/users/daisuke-yamamoto/items?page=1&per_page=${count}`);
   const qiitaItems: any[] = await response.json();
@@ -107,12 +115,7 @@ app.get('/', (c) => {
 })
 
 app.get('/experience/', async (c) => {
-  const { results } = await c.env.DB.prepare(
-    "SELECT * FROM experience ORDER BY id DESC"
-  )
-  .all();
-  console.log(JSON.stringify(results))
-  const experience = results as iExperience[]
+  const experience = await getExperience(c.env) as any
   return c.html(<Experience title='Return to top &gt;' heading="Experience" detail={experience}/>)
 })
 
