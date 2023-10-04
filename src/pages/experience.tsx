@@ -7,7 +7,7 @@ export const Experience = (props: { title: string, heading: string, detail: iExp
         <main>
             <h2 class="fa-inverse">{props.heading}</h2>
             <ul>
-                {props.detail.map(({ id, company, position }) => (
+                {props.detail && props.detail.map(({ id, company, position }) => (
                     <li id={id}>{id}: {position} @ {company}</li>
                 ))}
             </ul>
