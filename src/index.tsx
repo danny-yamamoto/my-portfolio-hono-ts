@@ -13,6 +13,7 @@ export type Env = {
   GRAPHQL_API: string;
   GH_TOKEN: string;
   CERTIFICATES: KVNamespace;
+  DB: D1Database;
 };
 
 const app = new Hono<{ Bindings: Env }>();
@@ -52,27 +53,6 @@ export type Viewer = {
 }
 
 // Logic
-const getExperience = () => {
-  const experience: iExperience[] = [
-    {
-        id: '2022-09',
-        company: 'Retail AI X Inc.',
-        position: 'Lead Engineer',
-    },
-    {
-        id: '2021-06',
-        company: 'Retail AI X Inc.',
-        position: 'Software Engineer',
-    },
-    {
-        id: '2020-06',
-        company: 'Retail AI Engineering Inc.',
-        position: 'Software Engineer',
-    }
-  ]
-  return experience;
-}
-
 const getArticles = async (count: number): Promise<iArticles[]> => {
   const response = await fetch(`https://qiita.com/api/v2/users/daisuke-yamamoto/items?page=1&per_page=${count}`);
   const qiitaItems: any[] = await response.json();
@@ -82,20 +62,6 @@ const getArticles = async (count: number): Promise<iArticles[]> => {
     id: item.id,
   }));
   return articles;
-}
-
-const getCertificates = () => {
-  const certificates: iCertificates[] = [
-    {
-        blockchainId: '732838',
-        title: 'Google Cloud Certified - Professional Cloud Developer',
-    },
-    {
-        blockchainId: '672721',
-        title: 'Google Cloud Certified - Professional Cloud Architect',
-    }
-  ];
-  return certificates;
 }
 
 const getRepositories = async (ghEndpoint: string, ghToken: string): Promise<iRepositories[]> => {
@@ -140,8 +106,13 @@ app.get('/', (c) => {
   return c.html(<Top />)
 })
 
-app.get('/experience/', (c) => {
-  const experience = getExperience()
+app.get('/experience/', async (c) => {
+  const { results } = await c.env.DB.prepare(
+    "SELECT * FROM experience ORDER BY id DESC"
+  )
+  .all();
+  console.log(JSON.stringify(results))
+  const experience = results as iExperience[]
   return c.html(<Experience title='Return to top &gt;' heading="Experience" detail={experience}/>)
 })
 
@@ -166,8 +137,6 @@ app.get('/certificates/', async (c) => {
     const iCert:iCertificates = {blockchainId: kvKey, title: certName}
     certArray.push(iCert);
   }
-//  const certificates = getCertificates()
-//  return c.html(<Certificates title='Certificates' detail={certificates} />)
   return c.html(<Certificates title='Return to top &gt;' heading='Certificates' detail={certArray} />)
 })
 
@@ -181,7 +150,5 @@ app.get('/repositories/', async (c) => {
 //app.get('/static/*', serveStatic({ root: './' }))
 //app.get('/favicon.ico', serveStatic({ path: './favicon.ico' }))
 
-// TODO: 修正の理由を詳細に説明する
-//app.fire()
 // Module Workers Mode
 export default app;
