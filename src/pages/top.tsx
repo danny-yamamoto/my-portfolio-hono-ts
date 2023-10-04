@@ -27,7 +27,7 @@ const Repositories = () => (
 
 export const Top = () => {
   return (
-    <Layout title={'Top'}>
+    <Layout title={'Welcome to my portfolio'}>
       <main>
         <Experience />
         <Articles />
