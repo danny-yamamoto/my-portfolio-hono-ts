@@ -8,6 +8,7 @@ import { Repositories } from './pages/repositories'
 // @ts-ignore
 //import manifest from "__STATIC_CONTENT_MANIFEST";
 import { KVNamespace } from '@cloudflare/workers-types'
+import { IArticles, ICertificates, IRepositories, TNameObject } from './types'
 
 export type Env = {
   GRAPHQL_API: string;
@@ -19,34 +20,11 @@ export type Env = {
 const app = new Hono<{ Bindings: Env }>();
 
 // Model
-export type iExperience = {
-  id: string;
-  company: string;
-  position: string;
-}
-
-export type iArticles = {
-  title: string;
-  url: string;
-  id: string;
-};
-
-export type iCertificates = {
-  blockchainId: string;
-  title: string;
-}
-
-export type iRepositories = {
-  name: string;
-  description: string;
-  url: string;
-}
-
 export type Viewer = {
   data: {
       viewer: {
           repositories: {
-              nodes: iRepositories[];
+              nodes: IRepositories[];
           }
       }
   }
@@ -61,10 +39,10 @@ const getExperience = async (env: Env) => {
   return results
 }
 
-const getArticles = async (count: number): Promise<iArticles[]> => {
+const getArticles = async (count: number): Promise<IArticles[]> => {
   const response = await fetch(`https://qiita.com/api/v2/users/daisuke-yamamoto/items?page=1&per_page=${count}`);
   const qiitaItems: any[] = await response.json();
-  const articles: iArticles[] = qiitaItems.map(item => ({
+  const articles: IArticles[] = qiitaItems.map(item => ({
     title: item.title,
     url: item.url,
     id: item.id,
@@ -72,7 +50,7 @@ const getArticles = async (count: number): Promise<iArticles[]> => {
   return articles;
 }
 
-const getRepositories = async (ghEndpoint: string, ghToken: string): Promise<iRepositories[]> => {
+const getRepositories = async (ghEndpoint: string, ghToken: string): Promise<IRepositories[]> => {
   // Repositories created by you
   const queryData = {
     query: `
@@ -105,7 +83,7 @@ const getRepositories = async (ghEndpoint: string, ghToken: string): Promise<iRe
     return []
   }
   const viewerData:Viewer  = await response.json();
-  const repositories: iRepositories[] = viewerData.data.viewer.repositories.nodes;
+  const repositories: IRepositories[] = viewerData.data.viewer.repositories.nodes;
   return repositories;
 }
 
@@ -124,20 +102,16 @@ app.get('/articles/', async (c) => {
   return c.html(<Articles title='Return to top &gt;' heading='Top 20 Articles' detail={articles} />)
 })
 
-type NameObject = {
-  name: string;
-};
-
 app.get('/certificates/', async (c) => {
   //await c.env.CERTIFICATES.put("672721", "Google Cloud Certified - Professional Cloud Architect")
   const certKeyList = await c.env.CERTIFICATES.list()
-  const namesArray: NameObject[] = certKeyList.keys;
-  const certArray: iCertificates[] = []
+  const namesArray: TNameObject[] = certKeyList.keys;
+  const certArray: ICertificates[] = []
   for (const name of namesArray) {
-    const kvKeyObject: NameObject = name
+    const kvKeyObject: TNameObject = name
     const kvKey = kvKeyObject.name
     const certName = await c.env.CERTIFICATES.get(kvKey) as string
-    const iCert:iCertificates = {blockchainId: kvKey, title: certName}
+    const iCert:ICertificates = {blockchainId: kvKey, title: certName}
     certArray.push(iCert);
   }
   return c.html(<Certificates title='Return to top &gt;' heading='Certificates' detail={certArray} />)
