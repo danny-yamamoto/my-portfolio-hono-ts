@@ -50,6 +50,20 @@ const getArticles = async (count: number): Promise<IArticles[]> => {
   return articles;
 }
 
+const getCertificates = async (env: Env) => {
+  const certKeyList = await env.CERTIFICATES.list()
+  const namesArray: TNameObject[] = certKeyList.keys;
+  const certArray: ICertificates[] = []
+  for (const name of namesArray) {
+    const kvKeyObject: TNameObject = name
+    const kvKey = kvKeyObject.name
+    const certName = await env.CERTIFICATES.get(kvKey) as string
+    const iCert:ICertificates = {blockchainId: kvKey, title: certName}
+    certArray.push(iCert);
+  }
+  return certArray
+}
+
 const getRepositories = async (ghEndpoint: string, ghToken: string): Promise<IRepositories[]> => {
   // Repositories created by you
   const queryData = {
@@ -103,18 +117,8 @@ app.get('/articles/', async (c) => {
 })
 
 app.get('/certificates/', async (c) => {
-  //await c.env.CERTIFICATES.put("672721", "Google Cloud Certified - Professional Cloud Architect")
-  const certKeyList = await c.env.CERTIFICATES.list()
-  const namesArray: TNameObject[] = certKeyList.keys;
-  const certArray: ICertificates[] = []
-  for (const name of namesArray) {
-    const kvKeyObject: TNameObject = name
-    const kvKey = kvKeyObject.name
-    const certName = await c.env.CERTIFICATES.get(kvKey) as string
-    const iCert:ICertificates = {blockchainId: kvKey, title: certName}
-    certArray.push(iCert);
-  }
-  return c.html(<Certificates title='Return to top &gt;' heading='Certificates' detail={certArray} />)
+  const certificates = await getCertificates(c.env) as any
+  return c.html(<Certificates title='Return to top &gt;' heading='Certificates' detail={certificates} />)
 })
 
 app.get('/repositories/', async (c) => {
