@@ -9,6 +9,7 @@ import { Repositories } from './pages/repositories'
 //import manifest from "__STATIC_CONTENT_MANIFEST";
 import { KVNamespace } from '@cloudflare/workers-types'
 import { IArticles, ICertificates, IRepositories, TNameObject } from './types'
+import { getArticles } from './utils/articles.server'
 
 export type Env = {
   GRAPHQL_API: string;
@@ -33,21 +34,10 @@ export type Viewer = {
 // Logic
 const getExperience = async (env: Env) => {
   const { results } = await env.DB.prepare(
-    "SELECT * FROM experience ORDER BY id DESC"
+    "SELECT id,company,position FROM experience ORDER BY id DESC"
   )
   .all();
   return results
-}
-
-const getArticles = async (count: number): Promise<IArticles[]> => {
-  const response = await fetch(`https://qiita.com/api/v2/users/daisuke-yamamoto/items?page=1&per_page=${count}`);
-  const qiitaItems: any[] = await response.json();
-  const articles: IArticles[] = qiitaItems.map(item => ({
-    title: item.title,
-    url: item.url,
-    id: item.id,
-  }));
-  return articles;
 }
 
 const getCertificates = async (env: Env) => {
